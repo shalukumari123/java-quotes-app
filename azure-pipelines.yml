@@ -1,0 +1,30 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dockerRegistryServiceConnection: 'dockerhub-service-connection'   # your service connection name dockerhub-service=connection
+  imageName: 'shalukumari123/java-app'
+
+steps:
+- checkout: self
+
+- task: Docker@2
+  displayName: Login to DockerHub
+  inputs:
+    command: login
+    containerRegistry: $(dockerRegistryServiceConnection)
+
+- task: Docker@2
+  displayName: Build and Push Docker Image
+  inputs:
+    command: buildAndPush
+    containerRegistry: $(dockerRegistryServiceConnection)
+    repository: $(imageName)
+    dockerfile: '$(Build.SourcesDirectory)/Dockerfile'   # absolute path to Dockerfile
+    buildContext: '$(Build.SourcesDirectory)'            # <--- this is key!
+    tags: |
+      $(Build.BuildId)
+      latest
