@@ -15,7 +15,7 @@ public class Main {
     private static List<String> quotes;
     
     public static void main(String[] args) throws IOException {
-        // Load quotes from an external file
+        // Load quotes from an external file quotes.txt
         quotes = loadQuotesFromFile("quotes.txt");
         
         if (quotes.isEmpty()) {
