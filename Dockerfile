@@ -11,7 +11,7 @@ COPY quotes.txt /app/
 RUN javac Main.java
 
 # ---------- Stage 2: Runtime ----------
-FROM eclipse-temurin:17-jre-alpine   # ✅ lightweight runtime only
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
