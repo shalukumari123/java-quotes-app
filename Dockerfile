@@ -9,7 +9,7 @@ RUN mvn dependency:go-offline -B
 
 # Copy source code and build
 COPY src ./src
-COPY quotes.txt ./   # include your resource file
+COPY quotes.txt ./   
 RUN mvn clean package -DskipTests
 
 # ---------- Stage 2: Runtime ----------
