@@ -2,29 +2,42 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'ubuntu-latest'   # use self-hosted pool (or ubuntu-latest if MS-hosted)
 
 variables:
-  dockerRegistryServiceConnection: 'dockerhub-service-connection'   # your service connection name dockerhub-service=connection
+  dockerRegistryServiceConnection: 'dockerhub-service-connection'
   imageName: 'shalukumari123/java-app'
 
 steps:
 - checkout: self
 
+# --------- New Step: Compile Java code ---------
+- task: Bash@3
+  displayName: Compile Java App
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "Compiling Java app..."
+      mkdir -p build
+      javac -d build src/Main.java
+      echo "Compilation successful."
+
+# --------- Docker login ---------
 - task: Docker@2
   displayName: Login to DockerHub
   inputs:
     command: login
     containerRegistry: $(dockerRegistryServiceConnection)
 
+# --------- Build & push Docker image ---------
 - task: Docker@2
   displayName: Build and Push Docker Image
   inputs:
     command: buildAndPush
     containerRegistry: $(dockerRegistryServiceConnection)
     repository: $(imageName)
-    dockerfile: '$(Build.SourcesDirectory)/Dockerfile'   # absolute path to Dockerfile
-    buildContext: '$(Build.SourcesDirectory)'            # <--- this is key!
+    dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+    buildContext: '$(Build.SourcesDirectory)'
     tags: |
       $(Build.BuildId)
       latest
