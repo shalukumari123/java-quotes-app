@@ -11,7 +11,7 @@ COPY quotes.txt /app/
 RUN javac Main.java
 
 # ---------- Stage 2: Runtime ----------
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17-jre-alpine
 
 WORKDIR /app
 
