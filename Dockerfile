@@ -1,26 +1,26 @@
 # ---------- Stage 1: Build ----------
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Copy source code and resources
-COPY src/Main.java /app/
-COPY quotes.txt /app/
+# Copy pom.xml and download dependencies first (cache layer)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-# Compile Java source
-RUN javac Main.java
+# Copy source code and build
+COPY src ./src
+COPY quotes.txt ./   # include your resource file
+RUN mvn clean package -DskipTests
 
 # ---------- Stage 2: Runtime ----------
-FROM eclipse-temurin:17-jre-alpine   
+FROM eclipse-temurin:17-jre AS runtime
 
 WORKDIR /app
 
-# Copy only compiled classes + resources from build stage
-COPY --from=build /app/Main.class /app/
-COPY --from=build /app/quotes.txt /app/
+# Copy the built jar from Stage 1
+COPY --from=build /app/target/java-quotes-app-1.0.0.jar app.jar
+COPY --from=build /app/quotes.txt ./quotes.txt
 
-# Expose port for HTTP server
 EXPOSE 8000
 
-# Run the Java application
-CMD ["java", "Main"]
+CMD ["java", "-jar", "app.jar"]
