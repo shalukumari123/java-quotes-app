@@ -1,24 +1,26 @@
-# Use the official OpenJDK 17 image as the base image
-FROM openjdk:17-jdk-alpine
+# ---------- Stage 1: Build ----------
+FROM openjdk:17-jdk-alpine AS build
 
-# Set metadata
-LABEL maintainer="shalu@gmail.com"
-LABEL version="1.0"
-LABEL description="A Java Quotes application"
-
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the source code into the container
-COPY src/Main.java /app/Main.java
+# Copy source code and resources
+COPY src/Main.java /app/
+COPY quotes.txt /app/
 
-COPY quotes.txt quotes.txt
-
-# Compile the Java code
+# Compile Java code
 RUN javac Main.java
 
-# Expose port 8000 for the HTTP server
+# ---------- Stage 2: Runtime ----------
+FROM openjdk:17-jdk-alpine
+
+WORKDIR /app
+
+# Copy only compiled classes + resources from build stage
+COPY --from=build /app/Main.class /app/
+COPY --from=build /app/quotes.txt /app/
+
+# Expose port for HTTP server
 EXPOSE 8000
 
-# Run the Java application when the container starts
+# Run the Java application
 CMD ["java", "Main"]
