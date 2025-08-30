@@ -1,5 +1,5 @@
 # ---------- Stage 1: Build ----------
-FROM openjdk:17-jdk-alpine AS build
+FROM eclipse-temurin:17-jdk-alpine AS build
 
 WORKDIR /app
 
@@ -7,11 +7,11 @@ WORKDIR /app
 COPY src/Main.java /app/
 COPY quotes.txt /app/
 
-# Compile Java code
+# Compile Java source
 RUN javac Main.java
 
 # ---------- Stage 2: Runtime ----------
-FROM openjdk:17-jre-alpine
+FROM eclipse-temurin:17-jre-alpine   # ✅ lightweight runtime only
 
 WORKDIR /app
 
